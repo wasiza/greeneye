@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Green Eye">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4A3727">
+<title>Green Eye Project</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+input[type=number]{-moz-appearance:textfield}
+input::placeholder{color:#C0B295;font-weight:500}
+input[type=date]{-webkit-appearance:none;appearance:none}
+.gep-scroll::-webkit-scrollbar{display:none}
+.gep-scroll{scrollbar-width:none}
+@keyframes gepIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+body{font-family:'Hanken Grotesk',-apple-system,sans-serif;background:#F5EFE3;color:#2C2218;-webkit-font-smoothing:antialiased;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+/* HEADER */
+header{flex:none;padding:max(env(safe-area-inset-top),20px) 18px 14px;background:#F5EFE3;border-bottom:1px solid #E7DDC9}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.brand-icon{width:42px;height:42px;border-radius:13px;overflow:hidden;flex-shrink:0;box-shadow:0 2px 6px rgba(74,55,39,0.25)}
+.brand-icon img{width:100%;height:100%;object-fit:cover;display:block}
+.brand-name{flex:1}
+.brand-name h1{font-family:'Newsreader',serif;font-size:21px;font-weight:500;color:#33271A;letter-spacing:-.2px;line-height:1.05}
+.brand-name p{font-size:12px;color:#9A8A70;margin-top:1px;font-weight:500}
+.brand-name p b{color:#6B5440;font-weight:600}
+
+.crop-row{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.crop-btn{padding:11px 4px;border-radius:13px;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;text-align:center;transition:background .15s,color .15s,border-color .15s;background:#FFFFFF;color:#6E6052;border:1.5px solid #E7DDC9}
+.crop-btn.on{background:#4A3727;color:#F5EFE3;border-color:#4A3727}
+
+/* SCROLL AREA */
+.gep-scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:6px}
+.page{padding:6px 18px 26px;display:none}
+.page.show{display:block}
+
+.slbl{font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#A9997F;margin:18px 4px 9px}
+.slbl.first{margin-top:18px}
+.card{background:#FFFDF9;border:1px solid #EAE0CC;border-radius:22px;padding:16px 18px;box-shadow:0 1px 2px rgba(74,55,39,.04);margin-bottom:11px}
+
+/* TANK */
+.tank-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.tank-top span:first-child{font-size:14px;font-weight:600;color:#6E6052}
+.tank-top .croplbl{font-size:12.5px;font-weight:600;color:#5E7A4E}
+.stepper{display:flex;align-items:center;justify-content:center;gap:18px;padding:8px 0 14px}
+.step-btn{width:42px;height:42px;border-radius:13px;border:1.5px solid #E7DDC9;background:#FBF6EC;color:#6B5440;font-size:24px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:0;padding-bottom:3px;font-family:inherit}
+.vol-wrap{display:flex;align-items:baseline;gap:5px}
+#volInput{width:104px;text-align:center;border:none;background:transparent;font-family:'JetBrains Mono',monospace;font-size:46px;font-weight:800;color:#4A3727;letter-spacing:-2px;padding:0}
+#volInput:focus{outline:none}
+.vol-unit{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:#A9997F}
+.targets{display:flex;gap:9px}
+.tgt{flex:1;background:#FBF6EC;border:1px solid #EFE7D4;border-radius:14px;padding:13px 10px;text-align:center}
+.tgt .tv{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:#5E7A4E;letter-spacing:-.4px}
+.tgt .tl{font-size:10px;color:#A9997F;margin-top:5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+
+.cnote{padding:14px 16px;border-radius:16px;background:#F1ECDD;border:1px solid #E7DDC9;font-size:14px;color:#5B4F3E;line-height:1.6;margin-top:12px}
+.cnote b{color:#33271A;font-weight:700}
+
+/* AGE */
+.agelbl{font-size:13px;color:#9A8A70;font-weight:600;margin-bottom:9px}
+input[type=date]{width:100%;padding:12px 14px;border:1.5px solid #E7DDC9;border-radius:13px;background:#FBF6EC;font-family:inherit;font-size:15px;font-weight:600;color:#4A3727}
+input[type=date]:focus{outline:none;border-color:#5E7A4E}
+.age-stages{display:flex;gap:6px;margin-top:12px}
+.age-stage{flex:1;text-align:center;padding:8px 2px;border-radius:10px;font-size:11px;font-weight:700;letter-spacing:.2px;background:#F2EADB;color:#A89878}
+.age-stage.on{background:#4A3727;color:#F5EFE3}
+.age-res{margin-top:12px;padding:13px 15px;background:#E9EFE1;border-radius:13px;border-left:3px solid #5E7A4E;font-size:14px;color:#3E4D35;line-height:1.5;display:none;animation:gepIn .35s ease}
+.age-res b{font-weight:700;color:#42592F}
+
+/* DOSING */
+.ph{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.pbadge{font-size:11px;font-weight:800;letter-spacing:.5px;padding:5px 11px;border-radius:8px}
+.bb{background:#F6EAD6;color:#9A5E1E}
+.ba{background:#E7EDDF;color:#3F5435}
+.psub{font-size:12.5px;color:#A9997F;font-weight:500}
+.srow{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid #F0E8D6}
+.srow:last-child{border-bottom:none}
+.snum{width:26px;height:26px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;font-family:'JetBrains Mono',monospace}
+.sb .snum{background:#B5762A}
+.sa .snum{background:#5E7A4E}
+.sinfo{flex:1;min-width:0}
+.sname{font-size:14.5px;font-weight:600;color:#2C2218;line-height:1.3}
+.snote{font-size:11.5px;color:#A9997F;margin-top:2px;font-weight:500}
+.sval{text-align:right;flex-shrink:0;display:flex;align-items:baseline;gap:3px}
+.sgrams{font-size:25px;font-weight:800;color:#4A3727;font-family:'JetBrains Mono',monospace;letter-spacing:-.5px;line-height:1}
+.sunit{font-size:11px;color:#A9997F;font-weight:600}
+
+/* TOP-UP */
+.tu-row{display:flex;align-items:center;gap:12px}
+.tu-row span:first-child{flex:1;font-size:14.5px;font-weight:600;color:#2C2218}
+#curVol{width:84px;padding:11px;border:1.5px solid #E7DDC9;border-radius:12px;font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;color:#B5762A;text-align:center;background:#FBF6EC}
+#curVol:focus{outline:none;border-color:#B5762A}
+.tu-unit{font-size:14px;color:#A9997F;font-weight:600}
+.tu-res{margin-top:14px;padding-top:14px;border-top:1px solid #F0E8D6;display:none;animation:gepIn .35s ease}
+.tu-lead{font-size:12.5px;color:#A9997F;font-weight:600;margin-bottom:8px}
+.tu-lead b{color:#B5762A;font-weight:700}
+.tu-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #F6F0E2}
+.tu-item:last-child{border-bottom:none}
+.tu-item span:first-child{font-size:13.5px;color:#5B4F3E;font-weight:500}
+.tu-item span:last-child{font-family:'JetBrains Mono',monospace;font-weight:700;color:#B5762A;font-size:14.5px}
+
+.srcnote{text-align:center;padding:22px 16px 0;font-size:11.5px;color:#B6A684;line-height:1.5}
+
+/* LOG PAGE */
+.log-grid{display:flex;gap:10px}
+.log-field{flex:1}
+.log-field-lbl{font-size:11px;color:#A9997F;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin:0 0 6px 2px}
+.log-field input{width:100%;padding:12px;border:1.5px solid #E7DDC9;border-radius:13px;font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;color:#4A3727;text-align:center;background:#FBF6EC}
+.log-field input:focus{outline:none;border-color:#5E7A4E}
+.save-btn{width:100%;margin-top:12px;padding:14px;background:#4A3727;border:none;border-radius:14px;color:#F5EFE3;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.2px}
+.save-btn:active{opacity:.85}
+.log-foot{font-size:11.5px;color:#B6A684;margin-top:10px;text-align:center;line-height:1.5}
+
+.chart-card{padding:18px 16px 14px}
+.chart-bars{display:flex;align-items:flex-end;justify-content:space-between;gap:6px;height:96px}
+.chart-col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%}
+.chart-bar{width:100%;border-radius:5px 5px 2px 2px}
+.chart-foot{font-size:11px;color:#B6A684;margin-top:10px;text-align:center;font-weight:500}
+
+.log-entry{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:16px;background:#FFFDF9;margin-bottom:8px;border:1px solid #EAE0CC;border-left:3px solid #ccc}
+.log-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.log-date{flex:1;font-size:12.5px;color:#9A8A70;font-weight:600}
+.log-val{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14.5px}
+.log-del{border:none;background:transparent;color:#C9BBA0;font-size:20px;line-height:0;cursor:pointer;padding:4px 0 4px 6px;font-family:inherit}
+.empty-card{background:#FFFDF9;border:1px dashed #DCD0B8;border-radius:22px;padding:34px 20px;text-align:center}
+.empty-card .t1{font-size:14px;color:#A9997F;font-weight:600}
+.empty-card .t2{font-size:12.5px;color:#B6A684;margin-top:5px;line-height:1.5}
+
+/* REFERENCE PAGE */
+.mrow{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid #F0E8D6}
+.mrow:last-child{border-bottom:none}
+.mrow span:first-child{font-size:14px;color:#5B4F3E;font-weight:500;flex:1;padding-right:12px}
+.mrow span:last-child{font-family:'JetBrains Mono',monospace;font-weight:700;color:#5E7A4E;font-size:15.5px}
+.mnote{font-size:12.5px;color:#9A8A70;margin-top:13px;line-height:1.6;padding-top:13px;border-top:1px solid #F0E8D6}
+.mnote b{color:#4A3727}
+.ecrow{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid #F0E8D6}
+.ecrow:last-child{border-bottom:none}
+.ecrow span:first-child{font-size:14.5px;color:#2C2218;font-weight:600}
+.ecrow span:last-child{font-family:'JetBrains Mono',monospace;font-weight:700;color:#5E7A4E;font-size:15px}
+.footnote{text-align:center;padding:22px 16px 0;font-size:11.5px;color:#B6A684;line-height:1.6}
+.footnote b{color:#6B5440;font-weight:700}
+
+/* TAB BAR */
+.tabbar{flex:none;display:flex;background:#FBF7EE;border-top:1px solid #E7DDC9;padding:9px 10px max(env(safe-area-inset-bottom),24px);box-shadow:0 -2px 12px rgba(74,55,39,.04)}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;padding:4px 0;font-family:inherit}
+.tab span{font-size:10.5px;font-weight:700;letter-spacing:.2px;color:#BCAE92}
+.tab.on span{color:#4A3727}
+.tab svg path,.tab svg rect{stroke:#BCAE92}
+.tab.on svg path,.tab.on svg rect{stroke:#4A3727}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-icon"><img src="icon.png" alt="Green Eye Project icon"></div>
+    <div class="brand-name"><h1>Green Eye Project</h1><p>by <b>Wassim Rabaa</b></p></div>
+  </div>
+  <div class="crop-row" id="cropRow">
+    <button class="crop-btn on" data-crop="seedling">Seedling</button>
+    <button class="crop-btn" data-crop="leafy">Leafy</button>
+    <button class="crop-btn" data-crop="herbs">Herbs / Veg</button>
+    <button class="crop-btn" data-crop="fruiting">Fruiting</button>
+  </div>
+</header>
+
+<div class="gep-scroll">
+
+  <!-- ========= DOSE PAGE ========= -->
+  <div class="page show" id="pageDose">
+    <div class="slbl first">Tank</div>
+    <div class="card">
+      <div class="tank-top"><span>Reservoir volume</span><span class="croplbl" id="cropLabel">Seedling</span></div>
+      <div class="stepper">
+        <button class="step-btn" id="decVol">−</button>
+        <div class="vol-wrap"><input type="number" inputmode="numeric" id="volInput" value="30"><span class="vol-unit">L</span></div>
+        <button class="step-btn" id="incVol">+</button>
+      </div>
+      <div class="targets">
+        <div class="tgt"><div class="tv" id="ecT">0.6–0.8</div><div class="tl">EC · mS/cm</div></div>
+        <div class="tgt"><div class="tv">5.8–6.2</div><div class="tl">pH target</div></div>
+      </div>
+      <div class="cnote" id="cnote"></div>
+    </div>
+
+    <div class="slbl">Plant age</div>
+    <div class="card">
+      <div class="agelbl">Germination date</div>
+      <input type="date" id="gdate">
+      <div class="age-stages" id="ageStages">
+        <div class="age-stage" data-k="seedling">Seed</div>
+        <div class="age-stage" data-k="leafy">Leafy</div>
+        <div class="age-stage" data-k="herbs">Veg</div>
+        <div class="age-stage" data-k="fruiting">Fruit</div>
+      </div>
+      <div class="age-res" id="ageRes"></div>
+    </div>
+
+    <div class="slbl">Dosing</div>
+    <div class="card">
+      <div class="ph"><span class="pbadge ba">PART A</span><span class="psub">Add last · calcium side</span></div>
+      <div id="partA"></div>
+    </div>
+    <div class="card">
+      <div class="ph"><span class="pbadge bb">PART B</span><span class="psub">Add first · steps 1–4</span></div>
+      <div id="partB"></div>
+    </div>
+
+    <div class="slbl">Top-up calculator</div>
+    <div class="card">
+      <div class="tu-row">
+        <span>Reservoir dropped to</span>
+        <input type="number" inputmode="numeric" id="curVol" placeholder="22">
+        <span class="tu-unit">L</span>
+      </div>
+      <div class="tu-res" id="tuRes"></div>
+    </div>
+
+    <div class="srcnote">Hoagland-based · individual-salt formula · tuned per crop stage</div>
+  </div>
+
+  <!-- ========= LOG PAGE ========= -->
+  <div class="page" id="pageLog">
+    <div class="slbl first">New reading</div>
+    <div class="card">
+      <div class="log-grid">
+        <div class="log-field"><div class="log-field-lbl">EC</div><input type="number" inputmode="decimal" step="0.1" placeholder="1.5" id="logEc"></div>
+        <div class="log-field"><div class="log-field-lbl">pH</div><input type="number" inputmode="decimal" step="0.1" placeholder="6.0" id="logPh"></div>
+      </div>
+      <button class="save-btn" id="addLogBtn">Save reading</button>
+      <div class="log-foot">Status is graded against the current crop's EC band (<span id="ecTargetInline">0.6–0.8</span>)</div>
+    </div>
+
+    <div id="chartWrap" style="display:none">
+      <div class="slbl">EC trend</div>
+      <div class="card chart-card">
+        <div class="chart-bars" id="chartBars"></div>
+        <div class="chart-foot" id="chartFoot"></div>
+      </div>
+    </div>
+
+    <div class="slbl">History</div>
+    <div id="logList"></div>
+  </div>
+
+  <!-- ========= REFERENCE PAGE ========= -->
+  <div class="page" id="pageRef">
+    <div class="slbl first">Micro stock · make once · ~10,000 L</div>
+    <div class="card" style="padding:6px 18px 16px">
+      <div class="mrow"><span>Boric acid (H₃BO₃)</span><span>23.0 g</span></div>
+      <div class="mrow"><span>Manganese sulfate (MnSO₄·H₂O)</span><span>16.0 g</span></div>
+      <div class="mrow"><span>Zinc sulfate (ZnSO₄·7H₂O)</span><span>4.5 g</span></div>
+      <div class="mrow"><span>Copper sulfate (CuSO₄·5H₂O)</span><span>2.0 g</span></div>
+      <div class="mrow"><span>Sodium molybdate (Na₂MoO₄·2H₂O)</span><span>1.3 g</span></div>
+      <div class="mnote">Dissolve all in <b>1 L RO / distilled water</b> → store in a dark bottle → dose the mL shown as step 4 of Part B.</div>
+    </div>
+
+    <div class="slbl">Target EC by stage</div>
+    <div class="card" style="padding:6px 18px">
+      <div class="ecrow"><span>Seedling</span><span>0.6–0.8</span></div>
+      <div class="ecrow"><span>Leafy</span><span>1.2–1.6</span></div>
+      <div class="ecrow"><span>Herbs / Veg</span><span>1.8–2.2</span></div>
+      <div class="ecrow"><span>Fruiting</span><span>2.2–2.8</span></div>
+      <div class="ecrow"><span>pH — all stages</span><span>5.8–6.2</span></div>
+    </div>
+
+    <div class="footnote">Green Eye Project · Beirut · by <b>Wassim Rabaa</b></div>
+  </div>
+
+</div>
+
+<!-- TAB BAR -->
+<div class="tabbar">
+  <button class="tab on" data-tab="dose">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 3C12 3 5.5 11 5.5 15.5a6.5 6.5 0 0 0 13 0C18.5 11 12 3 12 3Z" stroke-width="1.7" stroke-linejoin="round"></path></svg>
+    <span>Dose</span>
+  </button>
+  <button class="tab" data-tab="log">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 16L9 10.5L13 13.5L20 6" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M4 20H20" stroke-width="1.7" stroke-linecap="round" opacity="0.4"></path></svg>
+    <span>Log</span>
+  </button>
+  <button class="tab" data-tab="ref">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="5" y="4" width="14" height="16" rx="2.5" stroke-width="1.7"></rect><path d="M9 9H15M9 12.5H15M9 16H13" stroke-width="1.7" stroke-linecap="round"></path></svg>
+    <span>Reference</span>
+  </button>
+</div>
+
+<script>
+const ORDER=['seedling','leafy','herbs','fruiting'];
+const LABELS={seedling:'Seedling',leafy:'Leafy',herbs:'Herbs / Veg',fruiting:'Fruiting'};
+const SHORT={seedling:'Seed',leafy:'Leafy',herbs:'Veg',fruiting:'Fruit'};
+const STAGE_LABEL={seedling:'Seedling · week 1–2',leafy:'Leafy growth · week 2–4',herbs:'Herbs / Veg · week 4–6',fruiting:'Fruiting · week 6+'};
+const NOTES={
+  seedling:{lead:'Seedlings',body:'gentle, Hoagland-scaled start. Fragile roots, low EC — run weeks 1–2 for every crop.'},
+  leafy:{lead:'Leafy greens',body:'high nitrogen, moderate EC. Lettuce, arugula, spinach, basil, parsley.'},
+  herbs:{lead:'Herbs / Veg',body:'stronger feed for stem veg and culinary herbs at production. Mint, dill, cilantro, chard.'},
+  fruiting:{lead:'Fruiting',body:'Hoagland-strength mix — higher K and P for flowering and fruit set. Tomato, pepper, cucumber, eggplant.'}
+};
+const C={
+  seedling:{ec:'0.6–0.8',
+    B:[{n:'Magnesium sulfate (Epsom)',t:'step 1',r:0.23,o:1,u:'g'},{n:'Potassium sulfate (K₂SO₄)',t:'step 2',r:0.09,o:2,u:'g'},{n:'Monopotassium phosphate (MKP)',t:'step 3',r:0.09,o:3,u:'g'},{n:'Micro stock',t:'step 4 · from stock bottle',r:0.05,o:4,u:'mL'}],
+    A:[{n:'Potassium nitrate (KNO₃)',t:'step 5',r:0.06,o:5,u:'g'},{n:'Calcium nitrate',t:'step 6 · slow, last',r:0.40,o:6,u:'g'},{n:'Iron chelate (Fe-EDTA 13%)',t:'step 7 · alone',r:0.012,o:7,u:'g'}]},
+  leafy:{ec:'1.2–1.6',
+    B:[{n:'Magnesium sulfate (Epsom)',t:'step 1',r:0.46,o:1,u:'g'},{n:'Potassium sulfate (K₂SO₄)',t:'step 2',r:0.18,o:2,u:'g'},{n:'Monopotassium phosphate (MKP)',t:'step 3',r:0.18,o:3,u:'g'},{n:'Micro stock',t:'step 4 · from stock bottle',r:0.10,o:4,u:'mL'}],
+    A:[{n:'Potassium nitrate (KNO₃)',t:'step 5',r:0.12,o:5,u:'g'},{n:'Calcium nitrate',t:'step 6 · slow, last',r:0.80,o:6,u:'g'},{n:'Iron chelate (Fe-EDTA 13%)',t:'step 7 · alone',r:0.025,o:7,u:'g'}]},
+  herbs:{ec:'1.8–2.2',
+    B:[{n:'Magnesium sulfate (Epsom)',t:'step 1',r:0.51,o:1,u:'g'},{n:'Potassium sulfate (K₂SO₄)',t:'step 2',r:0.22,o:2,u:'g'},{n:'Monopotassium phosphate (MKP)',t:'step 3',r:0.22,o:3,u:'g'},{n:'Micro stock',t:'step 4 · from stock bottle',r:0.10,o:4,u:'mL'}],
+    A:[{n:'Potassium nitrate (KNO₃)',t:'step 5',r:0.23,o:5,u:'g'},{n:'Calcium nitrate',t:'step 6 · slow, last',r:1.00,o:6,u:'g'},{n:'Iron chelate (Fe-EDTA 13%)',t:'step 7 · alone',r:0.028,o:7,u:'g'}]},
+  fruiting:{ec:'2.2–2.8',
+    B:[{n:'Magnesium sulfate (Epsom)',t:'step 1',r:0.51,o:1,u:'g'},{n:'Potassium sulfate (K₂SO₄)',t:'step 2',r:0.24,o:2,u:'g'},{n:'Monopotassium phosphate (MKP)',t:'step 3',r:0.22,o:3,u:'g'},{n:'Micro stock',t:'step 4 · from stock bottle',r:0.10,o:4,u:'mL'}],
+    A:[{n:'Potassium nitrate (KNO₃)',t:'step 5',r:0.41,o:5,u:'g'},{n:'Calcium nitrate',t:'step 6 · slow, last',r:1.12,o:6,u:'g'},{n:'Iron chelate (Fe-EDTA 13%)',t:'step 7 · alone',r:0.030,o:7,u:'g'}]}
+};
+const STATUS={good:'#5E7A4E',warn:'#B5762A',bad:'#A63D2C'};
+
+let state={tab:'dose',crop:'seedling',vol:30,gdate:'',log:[]};
+
+function g(id){return document.getElementById(id)}
+function save(){try{localStorage.setItem('gep_state_v1',JSON.stringify({crop:state.crop,vol:state.vol,gdate:state.gdate,log:state.log}))}catch(e){}}
+function load(){
+  try{
+    const raw=localStorage.getItem('gep_state_v1');
+    if(raw){
+      const s=JSON.parse(raw);
+      if(ORDER.includes(s.crop))state.crop=s.crop;
+      if(Number.isFinite(s.vol))state.vol=s.vol;
+      if(typeof s.gdate==='string')state.gdate=s.gdate;
+      if(Array.isArray(s.log))state.log=s.log;
+    }
+  }catch(e){}
+}
+function volNum(){const v=parseFloat(state.vol);return(!isFinite(v)||v<=0)?0:v}
+function fmt(v,u){if(u==='mL')return v.toFixed(2);if(v<1)return v.toFixed(3);if(v<10)return v.toFixed(2);return v.toFixed(1)}
+function detectCrop(gdate){
+  if(!gdate)return null;
+  const days=Math.floor((Date.now()-new Date(gdate).getTime())/864e5);
+  if(!isFinite(days)||days<0)return null;
+  const wk=Math.floor(days/7);
+  if(wk<2)return'seedling';if(wk<4)return'leafy';if(wk<6)return'herbs';return'fruiting';
+}
+
+function renderCropRow(){
+  document.querySelectorAll('.crop-btn').forEach(b=>b.classList.toggle('on',b.dataset.crop===state.crop));
+}
+function renderTank(){
+  const cr=C[state.crop];
+  g('volInput').value=state.vol;
+  g('cropLabel').textContent=LABELS[state.crop];
+  g('ecT').textContent=cr.ec;
+  g('ecTargetInline').textContent=cr.ec;
+  g('cnote').innerHTML='<b>'+NOTES[state.crop].lead+'</b> — '+NOTES[state.crop].body;
+}
+function renderDosing(){
+  const cr=C[state.crop],vn=volNum();
+  const row=(s,cls)=>{
+    const v=s.r*vn;
+    return `<div class="srow ${cls}"><div class="snum">${s.o}</div><div class="sinfo"><div class="sname">${s.n}</div><div class="snote">${s.t}</div></div><div class="sval"><div class="sgrams">${fmt(v,s.u)}</div><div class="sunit">${s.u}</div></div></div>`;
+  };
+  g('partB').innerHTML=cr.B.map(s=>row(s,'sb')).join('');
+  g('partA').innerHTML=cr.A.map(s=>row(s,'sa')).join('');
+}
+function renderAge(){
+  const detected=detectCrop(state.gdate);
+  document.querySelectorAll('.age-stage').forEach(el=>el.classList.toggle('on',el.dataset.k===detected));
+  g('gdate').value=state.gdate;
+  const res=g('ageRes');
+  if(state.gdate){
+    const days=Math.floor((Date.now()-new Date(state.gdate).getTime())/864e5);
+    if(isFinite(days)&&days>=0){
+      const wk=Math.floor(days/7);
+      res.style.display='block';
+      res.innerHTML=`<b>${days} days old</b> · ${wk} weeks → <b>${STAGE_LABEL[detected]}</b>`;
+      return;
+    }
+  }
+  res.style.display='none';
+}
+function renderTopup(){
+  const vn=volNum(),cur=parseFloat(g('curVol').value),cr=C[state.crop],res=g('tuRes');
+  if(isFinite(cur)&&cur>0&&cur<vn){
+    const delta=vn-cur;
+    res.style.display='block';
+    res.innerHTML=`<div class="tu-lead">Refilling <b>${delta.toFixed(1)} L</b> — add only:</div>`+
+      [...cr.B,...cr.A].map(s=>`<div class="tu-item"><span>${s.n}</span><span>${fmt(s.r*delta,s.u)} ${s.u}</span></div>`).join('');
+  }else{
+    res.style.display='none';
+  }
+}
+function renderLogPage(){
+  const chartSrc=state.log.filter(l=>l.ec!=null).slice(0,12).reverse();
+  const chartWrap=g('chartWrap');
+  if(chartSrc.length>=2){
+    chartWrap.style.display='block';
+    const maxEc=Math.max(2,...chartSrc.map(l=>l.ec));
+    g('chartBars').innerHTML=chartSrc.map(l=>{
+      const h=Math.max(8,Math.round(l.ec/maxEc*100));
+      return `<div class="chart-col"><div class="chart-bar" style="height:${h}%;background:${STATUS[l.status]}"></div></div>`;
+    }).join('');
+    g('chartFoot').textContent=`last ${chartSrc.length} readings · newest right`;
+  }else{
+    chartWrap.style.display='none';
+  }
+
+  const list=g('logList');
+  if(state.log.length){
+    list.innerHTML=state.log.map(l=>{
+      const valText=(l.ec!=null?'EC '+l.ec:'')+(l.ec!=null&&l.ph!=null?'  ·  ':'')+(l.ph!=null?'pH '+l.ph:'');
+      return `<div class="log-entry" style="border-left-color:${STATUS[l.status]}" data-ts="${l.ts}">
+        <div class="log-dot" style="background:${STATUS[l.status]}"></div>
+        <span class="log-date">${l.dateLabel}</span>
+        <span class="log-val" style="color:${STATUS[l.status]}">${valText}</span>
+        <button class="log-del" data-del="${l.ts}">×</button>
+      </div>`;
+    }).join('');
+  }else{
+    list.innerHTML='<div class="empty-card"><div class="t1">No readings logged yet</div><div class="t2">Log your EC &amp; pH above to track drift over time.</div></div>';
+  }
+}
+function renderAll(){
+  renderCropRow();renderTank();renderDosing();renderAge();renderTopup();renderLogPage();
+}
+
+// crop pills
+g('cropRow').addEventListener('click',e=>{
+  const b=e.target.closest('.crop-btn');if(!b)return;
+  state.crop=b.dataset.crop;save();renderAll();
+});
+
+// volume stepper
+g('volInput').addEventListener('input',e=>{
+  state.vol=e.target.value===''?'':parseFloat(e.target.value);save();renderDosing();renderTopup();renderTank();
+});
+g('incVol').addEventListener('click',()=>{state.vol=(parseFloat(state.vol)||0)+1;save();renderAll()});
+g('decVol').addEventListener('click',()=>{state.vol=Math.max(1,(parseFloat(state.vol)||0)-1);save();renderAll()});
+
+// age
+g('gdate').addEventListener('input',e=>{
+  state.gdate=e.target.value;
+  const k=detectCrop(state.gdate);
+  if(k)state.crop=k;
+  save();renderAll();
+});
+
+// top-up
+g('curVol').addEventListener('input',renderTopup);
+
+// log
+g('addLogBtn').addEventListener('click',()=>{
+  const ec=parseFloat(g('logEc').value),ph=parseFloat(g('logPh').value);
+  if(isNaN(ec)&&isNaN(ph))return;
+  const[lo,hi]=C[state.crop].ec.split('–').map(Number);
+  let status='good';
+  if(!isNaN(ec)){if(ec<lo-0.3||ec>hi+0.3)status='bad';else if(ec<lo||ec>hi)status='warn'}
+  const d=new Date();
+  const dateLabel=d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})+' · '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  state.log.unshift({ts:Date.now()+Math.random(),dateLabel,ec:isNaN(ec)?null:ec,ph:isNaN(ph)?null:ph,status});
+  g('logEc').value='';g('logPh').value='';
+  save();renderLogPage();
+});
+g('logList').addEventListener('click',e=>{
+  const btn=e.target.closest('.log-del');if(!btn)return;
+  const ts=parseFloat(btn.dataset.del);
+  state.log=state.log.filter(l=>l.ts!==ts);
+  save();renderLogPage();
+});
+
+// tabs
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    state.tab=t.dataset.tab;
+    document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('show'));
+    g('page'+t.dataset.tab.charAt(0).toUpperCase()+t.dataset.tab.slice(1)).classList.add('show');
+  });
+});
+
+load();renderAll();
+</script>
+</body>
+</html>
